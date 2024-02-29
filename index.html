@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/fontawesome.min.css" integrity="sha384-QYIZto+st3yW+o8+5OHfT6S482Zsvz2WfOzpFSXMF9zqeLcFV0/wlZpMtyFcZALm" crossorigin="anonymous">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>Real Time Monitoring System</title>
+</head>
+<body>
+  
+  <div class="main">
+    <div class="main-container">
+      <div id="logo">
+        <img src="./logo.png" alt="">
+        <p id="title" class="logo">Real Time Monitoring System</p>  
+      </div>
+      <div  class="container">
+        <div class="image">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbR-PSdubhhos11QEJ0CzT6Ir1A_cBg7Rkyw&usqp=CAU" alt="">
+        </div>
+        <div class="details">
+          <p>Temperature: <input type="range" min="0" max="100" value="69"> <span style="color: whitesmoke;"><span id="degree">00</span>&#176C</span></p>
+          <p>Time: <span style="color: whitesmoke;"><span id="hour">00</span>:<span id="minute">00</span></span></p>
+          <p>Gyroscope: <span style="color: whitesmoke;">00&#176</span></p>
+          <button>Fetch</button>
+        </div>
+      </div>
+      <footer><p>&copy; Copyright NextTech Technologies</p></footer>
+    </div>
+  </div>
+
+
+
+
+  <script src="https://kit.fontawesome.com/8e39eac66c.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init();
+  </script>
+  <script src="./script.js"></script>
+</body>
+</html>

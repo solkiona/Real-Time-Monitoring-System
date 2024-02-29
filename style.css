@@ -1,0 +1,132 @@
+*{
+  padding: 0;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  /* font-size: 1vw; */
+}
+i{
+  cursor: pointer;
+}
+a{
+  text-decoration: none;
+  color: black;
+}
+
+.main{
+  background: url(./spacecraft.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 77vh;
+  padding: 80px;
+  overflow-y: hidden;
+}
+
+.main-container{
+  padding: 10px;
+  border-radius: 15px;
+  background-color: rgba(255, 255, 255,0.4);
+}
+.logo{
+  font-weight: 600;
+  color: black;
+  align-items: center;
+}
+#logo{
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+.logo{
+  text-align: center;
+}
+#logo img{
+  width: 40px;
+}
+
+.container{
+  height: 60vh;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.container img{
+  width: 25vw;
+  border-radius: 10px;
+}
+.details p{
+  align-items: center;
+  padding: 10px;
+}
+
+
+
+.container button{
+  padding: 8px 50px;
+  border-radius: 15px;
+  border: none;
+  justify-content: space-around;
+  font-size: 16px;
+  cursor: pointer;
+}
+@media only screen and (max-width: 1000px){
+  .container{
+    height: 70vh;
+  }
+  #title{
+    font-size: 3vw;
+  }
+}
+@media only screen and (max-width: 700px){
+  .container{
+    flex-direction: column;
+  }
+  .container img{
+    width: 40vw;
+    border-radius: 10px;
+  }
+  .details{
+    text-align: left;
+  }
+  .main{
+    height: 90vh;
+    padding: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .logo {
+    position: static;
+    text-align: center;
+    font-size: 5vw;
+  }
+  #title{
+    font-size: 2.3vw;
+  }
+  #logo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1px;
+  }
+  footer p{
+    font-size: 3.6vw;
+  }
+  .container{
+    padding: 10px;
+  }
+  .footer p{
+    font-size: 2vw;
+  }
+}
+
+
+
+footer p{
+  color: rgba(0, 0, 0,0.6);
+  text-align: center;
+  font-size: 1vw;
+}
