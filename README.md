@@ -30,7 +30,7 @@ This Flask-based web application enables real-time monitoring of various environ
 4. Modify the `firebaseConfig` dictionary in the code with your Firebase project's configuration.
 5. Run the Flask application using the command:
    ```
-   python main.py
+   python3 main.py
    ```
 6. Access the application through a web browser by navigating to `http://localhost:5000/`.
 
