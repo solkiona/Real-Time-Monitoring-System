@@ -2,6 +2,7 @@
   padding: 0;
   margin: 0;
   font-family: 'Poppins', sans-serif;
+  overflow: hidden;
   /* font-size: 1vw; */
 }
 i{
@@ -13,10 +14,10 @@ a{
 }
 
 .main{
-  background: url(./spacecraft.jpg);
+  background: url(../images/spacecraft.jpg);
   background-repeat: no-repeat;
   background-size: cover;
-  height: 77vh;
+  height: 85vh;
   padding: 80px;
   overflow-y: hidden;
 }

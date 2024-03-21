@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stylish Dashboard</title>
+    <link rel="stylesheet" href="{{url_for('static', filename="assets/css/dashboard.css")}}">
+
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+
+
+
+</head>
+<body>
+    <div id="realtime">
+        <img src="{{url_for('static', filename='upload/realtimeicon.png')}}" id="icon" /> 
+        <p>Real Time Monitoring System</p>
+    </div>
+
+    <div id="dashboard">
+        <div id="imageContainer">
+            {% if imageurl %}
+                <img id="dashboardImage" src="{{imageurl}}" alt="Dashboard Image">
+            {% else %}
+                <img id="dashboardImage" src="{{url_for('static', filename='upload/image2.jpg')}}" alt="Dashboard Image">
+            {% endif %}
+        </div>
+    </div>
+        <div id="temperature" hx-get="{{
+            url_for('fetch_temp')
+        }}" hx-trigger='mouseenter' hx-target='#temperatureValue' hx-swap='innerHTML'>Temperature: <span id="temperatureValue">--</span> °C</div>
+    </div>
+
+    <div id='lastimg'>
+        <button hx-get="{{url_for('fetch_image')}}" hx-trigger="click" hx-target="#dashboard" hx-swap="innerHTML">
+            Get Latest Image
+        </button>
+    </div>
+
+    <div id="response-container">
+        <!-- Content from the HTMX response will be inserted here -->
+    </div>
+
+
+
+    <script>
+
+        function fetchData(){
+            document.getElementById('temperature').dispatchEvent(new Event('mouseenter'));
+
+            //alert('called after 2 seconds and mousenter event simulated successfully')
+        }
+
+        const intervalId =  setInterval(
+        fetchData, 2000
+        );
+        
+    </script>
+</body>
+</html>

@@ -5,29 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">  
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/fontawesome.min.css" integrity="sha384-QYIZto+st3yW+o8+5OHfT6S482Zsvz2WfOzpFSXMF9zqeLcFV0/wlZpMtyFcZALm" crossorigin="anonymous">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="{{url_for('static', filename='assets/css/style.css')}}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600;700&display=swap" rel="stylesheet">
+
+
   <title>Real Time Monitoring System</title>
+
+  <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
 </head>
 <body>
   
   <div class="main">
     <div class="main-container">
       <div id="logo">
-        <img src="./logo.png" alt="">
+        <img src="{{url_for('static', filename='assets/images/logo.png')}}" alt="">
         <p id="title" class="logo">Real Time Monitoring System</p>  
       </div>
       <div  class="container">
-        <div class="image">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbR-PSdubhhos11QEJ0CzT6Ir1A_cBg7Rkyw&usqp=CAU" alt="">
+        <div class="image" id="image">
+                {% if imageurl %}
+                <img id="dashboardImage" src="{{imageurl}}" alt="Dashboard Image">
+            {% else %}
+                <img id="dashboardImage" src="{{url_for('static', filename='assets/images/image2.jpg')}}" alt="Dashboard Image">
+                <p style="color: #fff; text-align: center"> You are Offline </p>
+            {% endif %}
         </div>
         <div class="details">
-          <p>Temperature: <input type="range" min="0" max="100" value="69"> <span style="color: whitesmoke;"><span id="degree">00</span>&#176C</span></p>
-          <p>Time: <span style="color: whitesmoke;"><span id="hour">00</span>:<span id="minute">00</span></span></p>
-          <p>Gyroscope: <span style="color: whitesmoke;">00&#176</span></p>
-          <button>Fetch</button>
+          <div id="temperature" hx-get="{{
+            url_for('fetch_temp')
+        }}" hx-trigger='mouseenter' hx-target='#degree' hx-swap='innerHTML'> <p>Temperature: <input type="range" min="0" max="100" value="69" id="range"> <span style="color: whitesmoke;"> <span id="degree">00</span> &#176C</span></p> </div>
+          <p id="time" hx-get="{{
+            url_for('fetch_imgTime')
+        }}" hx-trigger='mouseenter' hx-target='#hour' hx-swap='innerHTML'>Image Time: <span style="color: whitesmoke;"><span id="hour"> 00:00:00 </span></p>
+          <p id="gyroscope" hx-get="{{
+            url_for('fetch_gyros')
+        }}" hx-trigger='mouseenter' hx-target='#gyros' hx-swap='innerHTML'>Gyroscope: <span style="color: whitesmoke;" id='gyros'>00&#176</span></p>
+          <p id="humidity" hx-get="{{
+            url_for('fetch_hdty')
+        }}" hx-trigger='mouseenter' hx-target='#hdty' hx-swap='innerHTML'>Humidity: <span style="color: whitesmoke;" id='hdty'>%</span></p>
+          <p id="gas" hx-get="{{
+            url_for('fetch_gas')
+        }}" hx-trigger='mouseenter' hx-target='#gasstat' hx-swap='innerHTML'>Gas: <span style="color: whitesmoke;" id='gasstat'> </span></p>
+          <button hx-get="{{url_for('fetch_image')}}" hx-trigger="click" hx-target="#image" hx-swap="innerHTML">Fetch</button>
         </div>
       </div>
       <footer><p>&copy; Copyright NextTech Technologies</p></footer>
@@ -42,6 +63,42 @@
   <script>
     AOS.init();
   </script>
-  <script src="./script.js"></script>
+  
+
+  <script>
+
+    function fetchData(){
+
+        document.getElementById('humidity').dispatchEvent(new Event('mouseenter'));
+        document.getElementById('temperature').dispatchEvent(new Event('mouseenter'));
+        document.getElementById('gyroscope').dispatchEvent(new Event('mouseenter'));
+        document.getElementById('gas').dispatchEvent(new Event('mouseenter'));
+        document.getElementById('time').dispatchEvent(new Event('mouseenter'));
+
+        //alert('mouse entered');
+
+        //alert('called after 2 seconds and mousenter event simulated successfully')
+    }
+
+    const intervalId =  setInterval(
+    fetchData, 2000
+    );
+
+    document.addEventListener('htmx:afterSwap', function(e) {
+    const rangeElement = document.getElementById('degree');
+
+    if (e.target === rangeElement) {
+      const rangeValue = parseInt(rangeElement.innerHTML);
+      //alert(rangeValue);
+      if (!isNaN(rangeValue)) { // Ensure parsing successful
+          rangeElement.value = rangeValue;
+      }
+      document.getElementById('range').value = rangeValue;
+  }
+
+  });
+
+  </script>
+
 </body>
 </html>
