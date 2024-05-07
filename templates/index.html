@@ -13,16 +13,38 @@
 
   <title>Real Time Monitoring System</title>
 
-  <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+
+  <script src="https://unpkg.com/htmx.org@1.9.8" integrity="sha384-rgjA7mptc2ETQqXoYC3/zJvkU7K/aP44Y+z7xQuJiVnB/422P/Ak+F/AqFR7E4Wr" crossorigin="anonymous"></script>
 </head>
-<body>
-  
+<body id="body">
+
+  <div id="viewStatus">
+    <div id="userStatus">
+
+    </div>
+  </div>
+ 
   <div class="main">
+
+   
     <div class="main-container">
       <div id="logo">
         <img src="{{url_for('static', filename='assets/images/logo.png')}}" alt="">
         <p id="title" class="logo">Real Time Monitoring System</p>  
       </div>
+      
+      <span id="action">
+
+        {%if admin_status%}
+      <a id="suspend" hx-trigger="click"  hx-target="#userStatus"
+      hx-get="{{url_for('view_users')}}"> View Users  </a> {%endif%}
+      
+
+    
+      <a id="logout" href="{{url_for('logout')}}"> Log Out</a>
+      
+      </span>
+      
       <div  class="container">
         <div class="image" id="image">
                 {% if imageurl %}
@@ -44,9 +66,9 @@
           <p id="time" hx-get="{{
             url_for('fetch_imgTime')
         }}" hx-trigger='mouseenter' hx-target='#hour' hx-swap='innerHTML'>Image Time: <span style="color: whitesmoke;"><span id="hour"> 00:00:00 </span></p>
-          <p id="gyroscope" hx-get="{{
+        <!---  <p id="gyroscope" hx-get="{{
             url_for('fetch_gyros')
-        }}" hx-trigger='mouseenter' hx-target='#gyros' hx-swap='innerHTML'>Gyroscope: <span style="color: whitesmoke;" id='gyros'>00&#176</span></p>
+        }}" hx-trigger='mouseenter' hx-target='#gyros' hx-swap='innerHTML'>Gyroscope: <span style="color: whitesmoke;" id='gyros'>00&#176</span></p> -->
           
           <p id="gas" hx-get="{{
             url_for('fetch_gas')
@@ -74,7 +96,7 @@
 
         document.getElementById('humidity').dispatchEvent(new Event('mouseenter'));
         document.getElementById('temperature').dispatchEvent(new Event('mouseenter'));
-        document.getElementById('gyroscope').dispatchEvent(new Event('mouseenter'));
+       // document.getElementById('gyroscope').dispatchEvent(new Event('mouseenter'));
         document.getElementById('gas').dispatchEvent(new Event('mouseenter'));
         document.getElementById('time').dispatchEvent(new Event('mouseenter'));
 

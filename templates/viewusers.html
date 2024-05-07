@@ -1,0 +1,200 @@
+{%if users%}
+
+<div id="viewUsers">
+
+    <div id="innerDiv"> 
+        <div id="close" 
+        hx-trigger="click"  hx-target="#body"
+                           hx-get="{{url_for('index', admin_status=True)}}"
+                           hx-swap: "none"
+        > X </div>
+
+        
+        <span id="suspendStatus" style="padding-left: 20px;"> 
+        </span>
+
+        <div class="scroll-container">
+
+        
+            <table>
+                <tr class="tablehead"> 
+                    <th>SN </th> <th> User </th> <th> Status </th> <th> Action</th>
+                    
+                </tr>
+        
+                        {%for user in users%}
+
+                        {%if not user.admin%}
+                        
+
+
+                        <tr class="tablerow"> 
+        
+                        <td>
+                            {{
+                            user.id
+                           }}
+                        </td>
+        
+                        <td> 
+                            <a 
+                            
+                            onclick="loginhistory({{user.id}})" 
+                            style="cursor: pointer"
+                            >
+
+                            {{user.username}}
+
+                            </a>
+        
+                        </td>
+        
+                        <td>
+                             
+                            
+                            {%if user.suspended %}
+
+                            
+                            <a 
+                            hx-trigger="click"  hx-target="#userStatus"
+                            hx-get="{{url_for('view_users')}}"
+                            style="color: red"
+                            id='simClick'
+                            > 
+                                
+                                
+                                Suspended
+                                
+                            </a>
+        
+                            {%else%}
+                            <a 
+                            hx-trigger="click"  hx-target="#userStatus"
+                            hx-get="{{url_for('view_users')}}"
+                            style="color: green"
+                            id='simClick'
+                            > 
+    
+                                Active
+                             
+                            </a>
+                            {%endif%}
+
+                       
+                        
+                        </td>
+        
+                        <td >
+                           <a  onclick="afterSwap()" hx-trigger="click"  hx-target="#suspendStatus"
+                           hx-get="{{url_for('suspend_user', user_id=user.id)}}"
+                           hx-swap: "none"
+                           style="cursor: pointer"
+                           href="{{url_for('view_users')}}"
+                           id="susBtn"
+                           class="susBtn{{user.id}}"
+                           > {%if user.suspended%} 
+                           
+                           Un Suspend 
+
+                          
+                           
+                           {%else%} Suspend
+                           
+                           <script>
+                            document.getElementsByClassName('susBtn'+{{user.id}})[0].style.backgroundColor = 'red';
+                           </script>
+                           
+                           {%endif%} </a>
+                        </td>
+                    </tr>
+
+                    <tr style="display:none;" class="loginHistoryHeading{{user.id}}"  id="loginHistoryHeading">
+                        <th colspan="4">Login History</th>
+                    </tr>
+                    {% for record in user.login_records %}
+                    <tr style="display:none;" class="loginHistory{{user.id}}" id="loginHistory">
+                        <td>{{ record.login_time.strftime("%d-%b-%Y  %H:%M:%S")}}</td>
+                    </tr>
+                    {% endfor %}
+                </tr>
+
+                    {%endif%}
+                    
+                    {%endfor%}
+        
+                    
+               
+            </table>
+        </div>
+    
+        
+      
+    </div>
+
+
+</div>
+
+{%endif%}
+
+<script>
+    /*document.addEventListener('htmx:afterSwap', function(event) {
+    });*/
+
+    function afterSwap( ) {
+
+       setTimeout(()=>{
+          /**  htmx.ajax('GET', '/admin/viewusers/', null, {
+                target: '#viewStatus',
+                historyUpdate: 'replace'
+            });**/
+
+        click_event = new CustomEvent('click');
+        simClick = document.getElementById('simClick');
+        simClick.dispatchEvent(click_event);
+        /**alert('ancher tag clicked')**/
+        }, 1500);
+
+        
+        
+        }
+
+
+        function loginhistory(id){
+            /**alert(id); **/
+            element1 = document.getElementsByClassName("loginHistoryHeading" + id);
+            element2 = document.getElementsByClassName("loginHistory" + id);
+            
+            if (element1[0].style.display == 'none' && element2[0].style.display == 'none'){
+
+                for(let i=0; i < element1.length; i++){
+
+                    element1[i].style.display = 'block';
+
+                }
+
+                for(let i=0; i < element2.length; i++){
+
+                    element2[i].style.display = 'block';
+
+                }
+                
+            }
+            else{
+
+                for(let i=0; i < element1.length; i++){
+
+                    element1[i].style.display = 'none';
+
+                }
+
+                for(let i=0; i < element2.length; i++){
+
+                    element2[i].style.display = 'none';
+
+                }
+
+            }
+        }
+    
+</script>
+

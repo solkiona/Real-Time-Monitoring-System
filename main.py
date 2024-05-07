@@ -1,14 +1,34 @@
-from flask import Flask, request, jsonify, render_template, url_for
+from flask import Flask, session, request, jsonify, render_template, url_for, request, redirect
 import requests
 import random
 import pyrebase
 import urllib
+import os
+# from decouple import config
+from db import db
+from models import User, LoginRecord
+from sqlalchemy import and_
+import vonage
+# import yagmail
 
 app = Flask(__name__)
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+    'sqlite:///' + os.path.join(basedir, 'database.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.secret_key = config('SECRET_KEY')
+app.secret_key = "56e33289a9bc31b0114bf242fb328099837594604dc954bf345ca13520ecd38b"
 app.config['STATIC_FOLDER'] = 'static'
+db.init_app(app)
 
 
+
+client = vonage.Client(
+    key='efb1fffe',
+    secret='4LzVgNM9vpPbtChV',
+)
+sms = vonage.Sms(client)
 
 firebaseConfig={
     "apiKey": "AIzaSyBzW-3h3FOAjMD28aePJAMK9rkjVDj2tQ0",
@@ -24,21 +44,52 @@ firebaseConfig={
 firebase=pyrebase.initialize_app(firebaseConfig)
 
 storage=firebase.storage()
-db=firebase.database()
+dtb=firebase.database()
 
+
+
+
+with app.app_context():
+    db.create_all()
+    
+
+# initiating connection with SMTP server 
+# yag = yagmail.SMTP("erinmaadule24@gmail.com", 
+# 				"yxydhqyhlpodlhol") 
+# Adding Content and sending it 
 
 
 #fetch last image from database 
 
 def fetchImage():
     try:
-        data = db.child('upload').get()
+        data = dtb.child('upload').get()
         imagearray = []
         for image in data.each():
             images = image.val()
             imagearray.append(images['name'])
         last_image = imagearray[-1]
+        """_SMS SENDING_
+
+        Returns:
+            SENDS SMS: TO RECEIPIENT
+        """
+        responseData = sms.send_message(
+        {
+        "from": "Next Tech",
+        "to": "2349073819557",
+        "text": "An Intruder detected. Kindly check your Dashboard"
+        }
+        )
+        if responseData["messages"][0]["status"] == '0':
+            print("Message Sent successfully")
+        else:
+            print(f"Message failed with error: {responseData['messages'][0]['error-text']}")
         
+        # yag.send("solkiona@gmail.com", 
+		# "INTRUDER ALERT", 
+		# "Good day Sir. Intruder detected, kindly check your dashboard") 
+        # print('message sent successfully')
         print(imagearray[2])
         print(last_image)
         
@@ -63,18 +114,24 @@ def checkStatus(imageurl):
 
 @app.route('/', methods=['get', 'post'])
 def index():
-    try:
-        cloudimage = fetchImage()
-        imageurl=storage.child(cloudimage).get_url(None)
-        
-        response = checkStatus(imageurl)
-        
-        if response:
-            return render_template('index.html', imageurl=imageurl)
-        
-    except Exception as e:
-        print("An error occurred: ", str(e))
-        return render_template('index.html')
+    if 'user_id' in session:
+        user_id = session['user_id']
+        user = User.query.get(user_id)
+        admin_status = request.args.get('admin_status')
+        try:
+            cloudimage = fetchImage()
+            imageurl=storage.child(cloudimage).get_url(None)
+            
+            response = checkStatus(imageurl)
+            
+            if response:
+                return render_template('index.html', imageurl=imageurl, admin_status=admin_status,user=user)
+            
+        except Exception as e:
+            print("An error occurred: ", str(e))
+            return render_template('index.html',  admin_status=admin_status,user=user)
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/dashboard/', methods=['get'])
@@ -120,15 +177,16 @@ def fetch_temp():
        'Attempting to fetch temperature data'
     )
     try:
-        data = db.child('temperature').get()
+        data = dtb.child('temperature').get()
         temparray = []
         for temp in data.each():
             temps = temp.val()
             print(temps)
             print(type(temps))
             temparray.append(temps['Readings'])
-        id = random.randint(0,20)
-        Readings = temparray[id]
+        # id = random.randint(0,20)
+        # Readings = temparray[id]
+        Readings = temparray[-1]
         print(temparray)
         print(Readings)
         return render_template('temp.html', Readings=Readings)
@@ -141,15 +199,15 @@ def fetch_hdty():
        'Attempting to fetch humidiity data'
     )
     try:
-        data = db.child('humidity').get()
+        data = dtb.child('humidity').get()
         hdtyarray = []
         for hdty in data.each():
             hdtys = hdty.val()
             print(hdtys)
             print(type(hdtys))
             hdtyarray.append(hdtys['Readings'])
-        id = random.randint(0,10)
-        Readings = hdtyarray[id]
+        # id = random.randint(0,10)
+        Readings = hdtyarray[-1]
         print(hdtyarray)
         print(Readings)
         return render_template('hdty.html', Readings=Readings)
@@ -162,15 +220,15 @@ def fetch_gas():
        'Attempting to fetch gas status'
     )
     try:
-        data = db.child('gas').get()
+        data = dtb.child('gas').get()
         gasarray = []
         for gas in data.each():
             gasstat = gas.val()
             print(gasstat)
             print(type(gasstat))
             gasarray.append(gasstat['Readings'])
-        id = random.randint(0,10)
-        Readings = gasarray[id]
+        # id = random.randint(0,10)
+        Readings = gasarray[-1]
         print(gasarray)
         print(Readings)
         return render_template('gas.html', Readings=Readings)
@@ -183,7 +241,7 @@ def fetch_gyros():
        'Attempting to fetch gyroscope status'
     )
     try:
-        data = db.child('gyroscope').get()
+        data = dtb.child('gyroscope').get()
         gyrosarray = []
         for gyros in data.each():
             gyross = gyros.val()
@@ -204,7 +262,7 @@ def fetch_imgTime():
        'Attempting to fetch imageTime status'
     )
     try:
-        data = db.child('imageTime').get()
+        data = dtb.child('imageTime').get()
         imgTimearray = []
         for imgTime in data.each():
             imgTimes = imgTime.val()
@@ -218,6 +276,132 @@ def fetch_imgTime():
         return render_template('imgTime.html', Readings=Readings)
     except:
         return('offline')
+
+@app.route('/admin/login/', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        if 'signinBtn' in request.form and request.form['signinBtn'] == 'Signin':        
+            email = request.form['email']
+            password = request.form['password']
+            user = User.query.filter(and_(User.password == password, User.email == email)).first()
+            if user:
+                session['user_id'] = user.id
+                if user.admin == True:
+                    admin_status = True
+                    return redirect(url_for('index', admin_status= admin_status))
+                else:
+                    alert_message = 'User is not Admin'
+                return redirect(url_for('login', alert_message=alert_message))
+            
+            else:
+                alert_message = 'Invalid Credentials'
+                return redirect(url_for('login', alert_message=alert_message))
+        
+        if 'signupBtn' in request.form and request.form['signupBtn'] == 'Signup':
+            username = request.form['username']
+            email = request.form['email']
+            password = request.form['password']
+            
+            # user = User.query.filter(and_(User.password == password, User.email == email)).first()
+            user = User.query.filter(User.email == email).first()
+            
+            if not user:
+                newUser = User(username=username, email=email, password=password, admin=True)   
+                db.session.add(newUser)
+                db.session.commit()
+                
+                session['user_id'] = newUser.id
+                newUser.id = newUser.id
+                return redirect(url_for('index'))
+            
+            elif user:
+                alert_message = "User Already Exist | Kindly Sign In"
+                return redirect(url_for('admin_login', alert_message=alert_message))
+    
+    alert_message = request.args.get('alert_message', None)
+    return render_template('login.html', alert_message=alert_message)
+
+
+
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if 'signinBtn' in request.form and request.form['signinBtn'] == 'Signin':        
+            email = request.form['email']
+            password = request.form['password']
+            user = User.query.filter(and_(User.password == password, User.email == email)).first()
+            
+            if user and not user.suspended:
+                login_record = LoginRecord(user=user)
+                db.session.add(login_record)
+                db.session.commit()
+                session['user_id'] = user.id
+                if user.admin == True:
+                    admin_status = True
+                    return redirect(url_for('index', admin_status=admin_status))
+                else: 
+                    return redirect(url_for('index'))
+            else:
+                try:
+                    if user.suspended:
+                        alert_message = 'User Suspended'
+                        return redirect(url_for('login', alert_message=alert_message))
+                except Exception as e:
+                    print(e)
+                    alert_message = 'Invalid Credentials'
+                    return redirect(url_for('login', alert_message=alert_message))
+        
+        if 'signupBtn' in request.form and request.form['signupBtn'] == 'Signup':
+            username = request.form['username']
+            email = request.form['email']
+            password = request.form['password']
+            
+            # user = User.query.filter(and_(User.password == password, User.email == email)).first()
+            user = User.query.filter(User.email == email).first()
+            
+            if not user:
+                newUser = User(username=username, email=email)
+                newUser = User(username=username, email=email, password=password)
+                    
+                db.session.add(newUser)
+                db.session.commit()
+                session['user_id'] = newUser.id
+                newUser.id = newUser.id
+                return redirect(url_for('index'))
+            else:
+                alert_message = "User Already Exist | Kindly Sign In"
+                return redirect(url_for('login', alert_message=alert_message))
+    
+    alert_message = request.args.get('alert_message', None)
+    return render_template('login.html', alert_message=alert_message)
+
+
+@app.route('/admin/suspend/<int:user_id>', methods=['GET', 'POST'])
+def suspend_user(user_id):
+    # Check if the user making the request is an admin (you need to implement this logic)
+    user = User.query.get(user_id)
+    if user:
+        user.suspended = not user.suspended
+        db.session.commit()
+        if user.suspended:
+            
+            return f'{user.username} is suspended successfully'
+        else:
+            return f'{user.username} is activated successfully'
+    else:
+        return 'User not found', 404
+
+@app.route('/admin/viewusers/', methods=['GET'])
+def view_users():
+    users = User.query.all()
+    return render_template('viewusers.html', users=users)
+@app.route('/logout/')
+def logout():
+    session.clear()
+    """<a id="suspend" hx-trigger="click"  hx-target="#suspendStatus"
+      hx-get="{{url_for('suspend_user', user_id=1)}}"> Suspend User </a>"""
+    return redirect(url_for('index'))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
